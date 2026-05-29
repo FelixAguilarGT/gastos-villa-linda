@@ -335,7 +335,14 @@ select.form-select {
 <div class="toast" id="toast"></div>
 
 <script>
-const KEY = 'casavillainda_v1';
+const SUPABASE_URL = 'https://ccvcilrruoshrqvnijgd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Gq-FnQ70LiLCnqRGBfJr6Q_5z6LmSqR';
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
 let data = { meses: {}, mesActual: '' };
 
 function toast(msg) {
@@ -345,20 +352,68 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function cargar() {
-  try { const s = localStorage.getItem(KEY); if (s) data = JSON.parse(s); } catch(e) {}
+async function cargar() {
+  try {
+
+    const { data: rows, error } = await supabaseClient
+      .from('gastos_data')
+      .select('*')
+      .limit(1);
+
+    if (rows && rows.length > 0) {
+      data = rows[0].data;
+    }
+
+  } catch(e) {
+    console.error(e);
+  }
+
   if (!data.meses) data.meses = {};
+
   if (!data.mesActual || !data.meses[data.mesActual]) {
     const m = mesKey(new Date());
-    if (!data.meses[m]) data.meses[m] = { personas: ['Yo', 'Otra persona'], gastos: [] };
+
+    if (!data.meses[m]) {
+      data.meses[m] = {
+        personas: ['Yo', 'Otra persona'],
+        gastos: []
+      };
+    }
+
     data.mesActual = m;
   }
+
   poblarSelect();
   render();
 }
 
-function guardar() {
-  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e) {}
+async function guardar() {
+
+  try {
+
+    const { data: rows } = await supabaseClient
+      .from('gastos_data')
+      .select('*')
+      .limit(1);
+
+    if (rows && rows.length > 0) {
+
+      await supabaseClient
+        .from('gastos_data')
+        .update({ data })
+        .eq('id', rows[0].id);
+
+    } else {
+
+      await supabaseClient
+        .from('gastos_data')
+        .insert([{ data }]);
+
+    }
+
+  } catch(e) {
+    console.error(e);
+  }
 }
 
 function mesKey(d) {
@@ -515,5 +570,6 @@ function render() {
 
 cargar();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
