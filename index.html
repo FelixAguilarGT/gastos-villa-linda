@@ -333,12 +333,13 @@ select.form-select {
 </main>
 
 <div class="toast" id="toast"></div>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+	
 const SUPABASE_URL = 'https://ccvcilrruoshrqvnijgd.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Gq-FnQ70LiLCnqRGBfJr6Q_5z6LmSqR';
 
-const supabaseClient = supabase.createClient(
+const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
@@ -570,6 +571,5 @@ function render() {
 
 cargar();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
